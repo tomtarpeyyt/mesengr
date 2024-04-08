@@ -40,4 +40,17 @@ export const listOthers = query({
 
         return await ctx.db.query('users').filter((q) => q.neq(q.field('tokenIdentifier'), identity.tokenIdentifier)).collect();
     }
+});
+
+export const get = query({
+    args: { userId: v.id("users") },
+    handler: async (ctx, { userId }) => {
+        const identity = await ctx.auth.getUserIdentity();
+        if (!identity) {
+            throw new Error("Called currentUser without authenticated user");
+        }
+
+        return await ctx.db
+            .get(userId)
+    }
 })
