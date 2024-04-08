@@ -50,3 +50,41 @@ export const getOrCreate = mutation({
     }
 });
 
+
+export const listByCurrentUser = query({
+    args: {},
+    handler: async (ctx, args) => {
+        const identity = await ctx.auth.getUserIdentity();
+
+        if (!identity) {
+            throw new Error("Unauthorized");
+        }
+
+        // current user
+        const currentUser = await ctx.db
+            .query("users")
+            .withIndex("by_token", (q) =>
+                q.eq("tokenIdentifier", identity.tokenIdentifier)
+            )
+            .unique();
+
+        if (!currentUser) {
+            throw new Error("Couldn't authenticate user");
+        }
+
+        const chatsFirstPart = await ctx.db
+            .query("chats")
+            .withIndex("by_participantOneId", (q) => q.eq("participantOneId", currentUser._id))
+            .collect();
+
+        const chatsSecondPart = await ctx.db
+            .query("chats")
+            .withIndex("by_participantTwoId", (q) => q.eq("participantTwoId", currentUser._id))
+            .collect();
+
+        const chats = [...chatsFirstPart, ...chatsSecondPart];
+
+        return chats;
+    },
+});
+
