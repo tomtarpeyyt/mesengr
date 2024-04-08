@@ -2,6 +2,7 @@
 
 import { api } from "@/convex/_generated/api";
 import { useQuery } from "convex/react";
+import { UserCard } from "./_components/user-card";
 
 
 export default function New() {
@@ -14,7 +15,7 @@ export default function New() {
         <h1 className="text-4xl font-bold w-full text-center py-12">Select a user to start a chat with.</h1>
         <div className="grid grid-cols-5 gap-10">
             {otherUsers?.map((otherUser) => (
-                <div>hello</div>
+                <UserCard key={otherUser._id} otherUser={otherUser} />
             ))}
         </div>
       </main>
