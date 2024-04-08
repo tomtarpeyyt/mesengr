@@ -26,4 +26,18 @@ export const store = mutation({
 
         return userId;
     }
+});
+
+export const listOthers = query({
+    args: {},
+    handler: async (ctx) => {
+        const identity = await ctx.auth.getUserIdentity();
+        console.log(identity);
+
+        if (!identity) {
+            throw new ConvexError('Called listOthers without authenticated user!');
+        } 
+
+        return await ctx.db.query('users').filter((q) => q.neq(q.field('tokenIdentifier'), identity.tokenIdentifier)).collect();
+    }
 })
